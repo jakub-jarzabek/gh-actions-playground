@@ -1,2 +1,42 @@
-name: create-branches
-on: [pull_request]
+on: 
+  pull_request:
+    branches:
+      - production 
+
+jobs:
+
+ edit-pr-title:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Edit PR title
+      uses: octokit/request-action@v2.x
+      with:
+        route: PULLS/${{ github.event.pull_request.number }}
+        method: PATCH
+        body: |
+          {
+            "title": "[PRODUCTION] ${{ github.event.pull_request.title }}"
+          }
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  create-staging-pr:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: ${{ github.head_ref }}
+        
+    - name: Create staging branch
+      run: |
+        git checkout -b staging-${{ github.head_ref }}
+        git push origin staging-${{ github.head_ref }}
+        
+    - name: Create pull request
+      uses: repo-sync/pull-request@v2
+      with:
+        destination_branch: "staging" 
+        pr_title: "[STAGING]"${{ github.event.pull_request.title }} 
+        pr_body: ${{ github.event.pull_request.body }}
+        pr_label: "automated"
+        pr_draft: true
+        github_token: ${{ secrets.GITHUB_TOKEN }}
