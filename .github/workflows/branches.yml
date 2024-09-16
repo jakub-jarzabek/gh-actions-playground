@@ -20,6 +20,9 @@ jobs:
 
   create-staging-pr:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR_PREFIX: "[S]"
     steps:
       - uses: actions/checkout@v2
         with:
@@ -28,16 +31,15 @@ jobs:
       - name: Create and merge new branch
         run: |
           git checkout staging
-          git checkout -b staging-${{ github.head_ref }}
+          git checkout -b "staging-${{ github.head_ref }}"
           git merge ${{ github.head_ref }}
-          git push origin staging-${{ github.head_ref }}
+          git push origin "staging-${{ github.head_ref }}"
 
       - name: Create pull request
         uses: repo-sync/pull-request@v2
         with:
           source_branch: "staging-${{ github.head_ref }}"
           destination_branch: "staging"
-          pr_title: "[S]${{ github.event.pull_request.title }}"
+          pr_title: "${{ env.PR_PREFIX }}${{ github.event.pull_request.title }}"
           pr_body: ${{ github.event.pull_request.body }}
           pr_label: "automated"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
