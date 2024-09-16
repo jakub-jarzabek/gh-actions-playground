@@ -39,7 +39,7 @@ jobs:
           git checkout -b "staging-${{ github.head_ref }}"
           git merge "origin/${{ github.head_ref }}"
           git push origin "staging-${{ github.head_ref }}"
-          echo ${{ github.event.pull_request.title }} | sed "s/\[P\] //g" >> $NEW_TITLE
+          echo 'NEW_TITLE=${{ github.event.pull_request.title }} | sed "s/\[P\] //g"' >> $GTHUB_ENV
 
       - name: Create pull request
         uses: repo-sync/pull-request@v2
