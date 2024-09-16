@@ -26,5 +26,5 @@ jobs:
             const result = await github.pulls.createReview({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            pull_number: context.issue.number,
-            event: "${{ steps.fetch_pr.outputs.staging_pr_id }}" })
+            pull_number: ${{ steps.fetch_pr.outputs.staging_pr_id }},
+            event: "APPROVE" })
