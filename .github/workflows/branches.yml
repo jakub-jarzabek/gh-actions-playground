@@ -14,9 +14,10 @@ jobs:
           PR_PREFIX: "[P]"
         with:
           route: PATCH /repos/{owner}/{repo}/pulls/${{ github.event.pull_request.number }}
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.event.repository.name }}
-          title: "${{ env.PR_PREFIX }} ${{ github.event.pull_request.title }}"
+          body: |
+            {
+              "title": "${{ env.PR_PREFIX }} ${{ github.event.pull_request.title }}"
+            }
 
   create-staging-pr:
     runs-on: ubuntu-latest
@@ -32,7 +33,7 @@ jobs:
         run: |
           git checkout staging
           git checkout -b "staging-${{ github.head_ref }}"
-          git merge ${{ github.head_ref }}
+          git merge "origin/${{ github.head_ref }}"
           git push origin "staging-${{ github.head_ref }}"
 
       - name: Create pull request
