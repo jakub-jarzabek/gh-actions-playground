@@ -10,8 +10,7 @@ jobs:
       - name: Edit PR title
         uses: octokit/request-action@v2.x
         with:
-          route: PULLS/${{ github.event.pull_request.number }}
-          method: PATCH
+          route: PATCH PULLS/${{ github.event.pull_request.number }}
           body: |
             {
               "title": "[P] ${{ github.event.pull_request.title }}"
