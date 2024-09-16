@@ -14,10 +14,7 @@ jobs:
           PR_PREFIX: "[P]"
         with:
           route: PATCH /repos/{owner}/{repo}/pulls/${{ github.event.pull_request.number }}
-          body: |
-            {
-              "title": "${{ env.PR_PREFIX }} ${{ github.event.pull_request.title }}"
-            }
+          title: "${{ env.PR_PREFIX }} ${{ github.event.pull_request.title }}"
 
   create-staging-pr:
     runs-on: ubuntu-latest
