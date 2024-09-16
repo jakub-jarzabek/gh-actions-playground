@@ -20,9 +20,11 @@ jobs:
           pr_id=$(gh pr list --search "${{env.AUTOMATED_PR_TITLE}} in:title" --json number --jq '.[0].number')
           echo "staging_pr_id=$pr_id" >> $GITHUB_OUTPUT
 
-      - name: Approve staging PR
-        if: github.event.review.state == 'approved' && steps.fetch_pr.outputs.staging_pr_id
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh pr review ${{ steps.fetch_pr.outputs.staging_pr_id }} --approve
+      - uses: actions/github-script@v4
+        with:
+          script: |
+            const result = await github.pulls.createReview({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+            event: ${{ steps.fetch_pr.outputs.staging_pr_id }} })
