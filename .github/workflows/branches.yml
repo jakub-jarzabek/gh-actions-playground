@@ -46,6 +46,6 @@ jobs:
         with:
           source_branch: "staging-${{ github.head_ref }}"
           destination_branch: "staging"
-          pr_title: "${{ env.PR_PREFIX }} NEW_TITLE"
+          pr_title: "${{ env.PR_PREFIX }} $NEW_TITLE"
           pr_body: ${{ github.event.pull_request.body }}
           pr_label: "automated"
