@@ -27,4 +27,4 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: context.issue.number,
-            event: ${{ steps.fetch_pr.outputs.staging_pr_id }} })
+            event: "${{ steps.fetch_pr.outputs.staging_pr_id }}" })
