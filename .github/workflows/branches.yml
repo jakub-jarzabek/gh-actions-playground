@@ -9,13 +9,14 @@ jobs:
     steps:
       - name: Edit PR title
         uses: octokit/request-action@v2.x
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_PREFIX: "[P]"
         with:
-          route: PATCH PULLS/${{ github.event.pull_request.number }}
-          body: |
-            {
-              "title": "[P] ${{ github.event.pull_request.title }}"
-            }
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          route: PATCH /repos/{owner}/{repo}/pulls/${{ github.event.pull_request.number }}
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.event.repository.name }}
+          title: "${{ env.PR_PREFIX }} ${{ github.event.pull_request.title }}"
 
   create-staging-pr:
     runs-on: ubuntu-latest
