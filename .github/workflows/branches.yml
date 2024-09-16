@@ -39,12 +39,13 @@ jobs:
           git checkout -b "staging-${{ github.head_ref }}"
           git merge "origin/${{ github.head_ref }}"
           git push origin "staging-${{ github.head_ref }}"
+          echo 'AUTOMATED_PR_TITLE=${{ github.event.pull_request.title }} | sed "s/\[P\] //g"' >> $GITHUB_ENV
 
       - name: Create pull request
         uses: repo-sync/pull-request@v2
         with:
           source_branch: "staging-${{ github.head_ref }}"
           destination_branch: "staging"
-          pr_title: "${{ env.PR_PREFIX }} $NEW_TITLE"
-          pr_body: ${{ github.event.pull_request.body }} ${{ github.event.pull_request.title }} | sed "s/\[P\] //g"
+          pr_title: "${{ env.PR_PREFIX }} $AUTOMATED_PR_TITLE"
+          pr_body: ${{ github.event.pull_request.body }}
           pr_label: "automated"
