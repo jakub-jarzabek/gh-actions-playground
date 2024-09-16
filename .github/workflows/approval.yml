@@ -8,6 +8,7 @@ jobs:
   approve-staging-pr:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Fetch staging PR ID
         if: github.event.review.state == 'approved'
         id: fetch_pr
