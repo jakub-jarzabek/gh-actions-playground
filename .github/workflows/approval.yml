@@ -22,6 +22,7 @@ jobs:
 
       - uses: actions/github-script@v4
         with:
+          github-token: ${{ secrets.CUSTOM_PAT }}
           script: |
             const result = await github.pulls.createReview({
             owner: context.repo.owner,
