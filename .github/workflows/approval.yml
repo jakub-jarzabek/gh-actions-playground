@@ -1,16 +1,14 @@
 on:
   pull_request_review:
-    branches:
-      - production
     types: [submitted]
 
 jobs:
   approve-staging-pr:
     runs-on: ubuntu-latest
+    if: github.event.review.state == 'approved' && github.event.pull_request.base.ref == 'production'
     steps:
       - uses: actions/checkout@v2
       - name: Fetch staging PR ID
-        if: github.event.review.state == 'approved'
         id: fetch_pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -28,4 +26,6 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: ${{ steps.fetch_pr.outputs.staging_pr_id }},
-            event: "APPROVE" })
+            event: "APPROVE",
+            body: `Approved by ${context.payload.review.user.login}`
+            })
