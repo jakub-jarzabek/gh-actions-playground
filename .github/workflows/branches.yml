@@ -11,6 +11,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_PREFIX: "[P]"
+        if: ${{ !contains(github.event.pull_request.title, env.PR_PREFIX) }}
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
           NEW_TITLE="${PR_PREFIX} ${{ github.event.pull_request.title }}"
@@ -32,16 +33,19 @@ jobs:
 
       - name: Create and merge new branch
         run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
           git checkout staging
           git checkout -b "staging-${{ github.head_ref }}"
           git merge "origin/${{ github.head_ref }}"
           git push origin "staging-${{ github.head_ref }}"
+          echo ${{ github.event.pull_request.title }} | sed "s/\[P\] //g" >> $NEW_TITLE
 
       - name: Create pull request
         uses: repo-sync/pull-request@v2
         with:
           source_branch: "staging-${{ github.head_ref }}"
           destination_branch: "staging"
-          pr_title: "${{ env.PR_PREFIX }} ${{ github.event.pull_request.title }}"
+          pr_title: "${{ env.PR_PREFIX }} NEW_TITLE"
           pr_body: ${{ github.event.pull_request.body }}
           pr_label: "automated"
