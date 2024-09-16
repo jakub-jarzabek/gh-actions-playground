@@ -1,0 +1,25 @@
+on:
+  pull_request_review:
+    branches: -production
+    types: [submitted]
+
+jobs:
+  approve-staging-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch staging PR ID
+        if: github.event.review.state == 'approved'
+        id: fetch_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo AUTOMATED_PR_TITLE="${{ github.event.pull_request.title }}" | sed "s/\[P\] //g" >> $GITHUB_ENV
+          pr_id=$(gh pr list --search "${{env.AUTOMATED_PR_TITLE}} in:title" --json number --jq '.[0].number')
+          echo "staging_pr_id=$pr_id" >> $GITHUB_OUTPUT
+
+      - name: Approve staging PR
+        if: github.event.review.state == 'approved' && steps.fetch_pr.outputs.staging_pr_id
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr review ${{ steps.fetch_pr.outputs.staging_pr_id }} --approve
