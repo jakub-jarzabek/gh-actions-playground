@@ -17,8 +17,13 @@ jobs:
           echo ${{env.AUTOMATED_PR_TITLE}}
           pr_id=$(gh pr list --search "${{env.AUTOMATED_PR_TITLE}} in:title" --json number --jq '.[0].number')
           echo "staging_pr_id=$pr_id" >> $GITHUB_OUTPUT
-
+          if [ -n "$pr_id" ]; then
+            echo "pr_found=true" >> $GITHUB_OUTPUT
+          else
+            echo "pr_found=false" >> $GITHUB_OUTPUT
+          fi
       - uses: actions/github-script@v4
+        if: steps.fetch_pr.outputs.pr_found == 'true'
         with:
           github-token: ${{ secrets.CUSTOM_PAT }}
           script: |
@@ -27,5 +32,5 @@ jobs:
             repo: context.repo.repo,
             pull_number: ${{ steps.fetch_pr.outputs.staging_pr_id }},
             event: "APPROVE",
-            body: `Approved by ${context.payload.review.user.login}`
+            body: `Approval by ${context.payload.review.user.login} automatically propagated from production Pull Request`
             })
