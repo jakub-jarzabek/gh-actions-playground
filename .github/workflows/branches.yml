@@ -23,16 +23,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.head_ref }}
+          fetch-depth: 0
 
-      - name: Create staging branch
+      - name: Create and merge new branch
         run: |
+          git checkout staging
           git checkout -b staging-${{ github.head_ref }}
+          git merge ${{ github.head_ref }}
           git push origin staging-${{ github.head_ref }}
 
       - name: Create pull request
         uses: repo-sync/pull-request@v2
         with:
+          source_branch: "staging-${{ github.head_ref }}"
           destination_branch: "staging"
           pr_title: "[S]${{ github.event.pull_request.title }}"
           pr_body: ${{ github.event.pull_request.body }}
