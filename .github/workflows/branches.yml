@@ -52,7 +52,19 @@ jobs:
 
           git push origin "staging-${{ github.head_ref }}" --force || true
 
+      - name: Check for existing pull request
+        id: check_pr
+        run: |
+          PR_EXISTS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls?head=staging-${{ github.head_ref }}&base=staging&state=open" | jq length)
+          if [ "$PR_EXISTS" -gt "0" ]; then
+            echo "PR_EXISTS=true" >> $GITHUB_OUTPUT
+          else
+            echo "PR_EXISTS=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Create pull request
+        if: steps.check_pr.outputs.PR_EXISTS == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -86,3 +98,27 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${{ github.repository }}/issues/$PR_NUMBER/labels \
             -d "{\"labels\": $LABELS}"
+
+      - name: Update existing PR labels
+        if: steps.check_pr.outputs.PR_EXISTS == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find the existing PR number
+          PR_NUMBER=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls?head=staging-${{ github.head_ref }}&base=staging&state=open" | jq '.[0].number')
+
+          # Prepare labels
+          LABELS='["automated"]'
+          if [[ "${{ steps.create_pr.outputs.MERGE_FAILED }}" == "true" ]]; then
+            LABELS='["automated", "merge-conflict"]'
+          fi
+
+          # Update labels of the existing pull request
+          curl -X PUT \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/$PR_NUMBER/labels \
+            -d "{\"labels\": $LABELS}"
+
+          echo "Updated labels for existing pull request #$PR_NUMBER"
