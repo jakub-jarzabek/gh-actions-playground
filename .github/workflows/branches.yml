@@ -40,7 +40,7 @@ jobs:
 
           git checkout staging
           git pull origin staging --rebase
-          git commit --allow-empty -m "Automated commit"
+          git commit --allow-empty -m "[BOT]: Resolve merge conflicts!"
 
           git checkout -b "staging-${{ github.head_ref }}" || git checkout "staging-${{ github.head_ref }}"
           git push origin "staging-${{ github.head_ref }}"|| true
@@ -58,7 +58,8 @@ jobs:
         run: |
           PR_TITLE="${{ env.PR_PREFIX }} ${{env.AUTOMATED_PR_TITLE}}"
           PR_BODY="${{ github.event.pull_request.body }}"
-          LABELS="automated${{ steps.create_pr.outputs.MERGE_FAILED == 'true' && ',merge-conflict' || '' }}"
+          # LABELS="automated${{ steps.create_pr.outputs.MERGE_FAILED == 'true' && ',merge-conflict' || '' }}"
+           LABELS="automated"
 
           curl -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
