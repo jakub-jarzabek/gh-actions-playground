@@ -42,7 +42,7 @@ jobs:
           git checkout -b "staging-${{ github.head_ref }}" || git checkout "staging-${{ github.head_ref }}"
           git push origin "staging-${{ github.head_ref }}"|| true
 
-          git merge "origin/${{ github.head_ref }}" || "echo MERGE_FAILED=true" >> $GITHUB_OUTPUT
+          git merge "origin/${{ github.head_ref }}" || echo "MERGE_FAILED=true" >> $GITHUB_OUTPUT
 
           git push origin "staging-${{ github.head_ref }}" --force || true
 
