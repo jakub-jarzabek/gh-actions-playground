@@ -40,6 +40,7 @@ jobs:
 
           git checkout staging
           git pull origin staging --rebase
+          git commit --allow-empty -m "Automated commit"
 
           git checkout -b "staging-${{ github.head_ref }}" || git checkout "staging-${{ github.head_ref }}"
           git push origin "staging-${{ github.head_ref }}"|| true
