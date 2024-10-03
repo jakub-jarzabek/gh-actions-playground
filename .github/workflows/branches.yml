@@ -24,6 +24,7 @@ jobs:
 
   create-staging-pr:
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.pull_request.title, '<skip>') }}
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       PR_PREFIX: "[S]"
@@ -100,7 +101,7 @@ jobs:
             -d "{\"labels\": $LABELS}"
 
       - name: Update existing PR labels
-        if: steps.check_pr.outputs.PR_EXISTS == 'true'
+        if: steps.check_pr.outputs.PR_EXISTS == 'true' && ${{ !contains(github.event.pull_request.title, '<skip>') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
