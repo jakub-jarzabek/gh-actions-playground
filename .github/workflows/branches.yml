@@ -56,12 +56,8 @@ jobs:
       - name: Check for existing pull request
         id: check_pr
         run: |
-          AUTOMATED_PR_TITLE="${{ github.event.pull_request.title }}" | sed "s/\[P\] /\[S\] /g"
-          echo "asdasda"
-          echo $AUTOMATED_PR_TITLE 
-          pr_id=$(gh pr list --search "$AUTOMATED_PR_TITLE in:title" --json number --jq '.[0].number')
-          echo "PR ID XOXOXO"
-          echo $pr_id
+          PR_TITLE="${{ env.PR_PREFIX }} ${{env.AUTOMATED_PR_TITLE}}"
+          pr_id=$(gh pr list --search "$PR_TITLE in:title" --json number --jq '.[0].number')
           if [ -n "$pr_id" ]; then
             echo "pr_found=true" >> $GITHUB_OUTPUT
           else
@@ -109,11 +105,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "PR found: " 
-          echo ${{steps.check_pr.outputs.pr_found}}
-          # Find the existing PR number
-          AUTOMATED_PR_TITLE="${{ github.event.pull_request.title }}" | sed "s/\[P\] /\[S\]/g"
-          PR_NUMBER=$(gh pr list --search "${{env.AUTOMATED_PR_TITLE}} in:title" --json number --jq '.[0].number')
+          PR_TITLE="${{ env.PR_PREFIX }} ${{env.AUTOMATED_PR_TITLE}}"
+          PR_NUMBER=$(gh pr list --search "$PR_TITLE in:title" --json number --jq '.[0].number')
 
           # Prepare labels
           LABELS='["automated"]'
