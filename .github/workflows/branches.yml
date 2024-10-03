@@ -56,16 +56,16 @@ jobs:
       - name: Check for existing pull request
         id: check_pr
         run: |
-          PR_EXISTS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls?head=staging-${{ github.head_ref }}&base=staging&state=open" | jq length)
-          if [ "$PR_EXISTS" -gt "0" ]; then
-            echo "PR_EXISTS=true" >> $GITHUB_OUTPUT
+          echo AUTOMATED_PR_TITLE="${{ github.event.pull_request.title }}" | sed "s/\[P\] /\[S\]/g" >> $GITHUB_ENV
+          pr_id=$(gh pr list --search "${{env.AUTOMATED_PR_TITLE}} in:title" --json number --jq '.[0].number')
+          if [ -n "$pr_id" ]; then
+            echo "pr_found=true" >> $GITHUB_OUTPUT
           else
-            echo "PR_EXISTS=false" >> $GITHUB_OUTPUT
+            echo "pr_found=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Create pull request
-        if: steps.check_pr.outputs.PR_EXISTS == 'false'
+        if: steps.check_pr.outputs.pr_found == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -101,13 +101,13 @@ jobs:
             -d "{\"labels\": $LABELS}"
 
       - name: Update existing PR labels
-        if: steps.check_pr.outputs.PR_EXISTS == 'true' && ${{ !contains(github.event.pull_request.title, '<skip>') }}
+        if: steps.check_pr.outputs.PR_found == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Find the existing PR number
-          PR_NUMBER=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls?head=staging-${{ github.head_ref }}&base=staging&state=open" | jq '.[0].number')
+          AUTOMATED_PR_TITLE="${{ github.event.pull_request.title }}" | sed "s/\[P\] /\[S\]/g"
+          PR_NUMBER=$(gh pr list --search "${{env.AUTOMATED_PR_TITLE}} in:title" --json number --jq '.[0].number')
 
           # Prepare labels
           LABELS='["automated"]'
