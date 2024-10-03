@@ -56,8 +56,9 @@ jobs:
       - name: Check for existing pull request
         id: check_pr
         run: |
-          echo AUTOMATED_PR_TITLE="${{ github.event.pull_request.title }}" | sed "s/\[P\] /\[S\]/g" >> $GITHUB_ENV
-          pr_id=$(gh pr list --search "${{env.AUTOMATED_PR_TITLE}} in:title" --json number --jq '.[0].number')
+          AUTOMATED_PR_TITLE="${{ github.event.pull_request.title }}" | sed "s/\[P\] /\[S\]/g"
+          echo AUTOMATED_PR_TITLE=$AUTOMATED_PR_TITLE 
+          pr_id=$(gh pr list --search "$AUTOMATED_PR_TITLE in:title" --json number --jq '.[0].number')
           if [ -n "$pr_id" ]; then
             echo "pr_found=true" >> $GITHUB_OUTPUT
           else
