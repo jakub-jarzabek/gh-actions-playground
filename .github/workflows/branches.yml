@@ -64,6 +64,8 @@ jobs:
             echo "pr_found=false" >> $GITHUB_OUTPUT
           fi
 
+          echo $GITHUB_OUTPUT.pr_found
+
       - name: Create pull request
         if: steps.check_pr.outputs.pr_found == 'false'
         env:
