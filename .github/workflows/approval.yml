@@ -35,4 +35,4 @@ jobs:
             pull_number: ${{ steps.fetch_pr.outputs.staging_pr_id }},
             event: "APPROVE",
             body: `Approval by ${context.payload.review.user.login} automatically propagated from production Pull Request`
-            })ging_pr_id }} --approve
+            })
