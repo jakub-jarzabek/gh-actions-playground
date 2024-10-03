@@ -17,7 +17,7 @@ jobs:
         run: |
           echo xoxoxoox
           echo ${{ github.event.pull_request.title }}
-          AUTOMATED_PR_TITLE=echo ("${{ github.event.pull_request.title }}" | sed "s/\[P\] /\[S\] /g")
+          AUTOMATED_PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | sed "s/\[P\] /\[S\] /g")
           echo "ATUOMATED_PR_TITLE xxx"
           echo $AUTOMATED_PR_TITLE
           pr_id=$(gh pr list --search "$AUTOMATED_PR_TITLE in:title" --json number --jq '.[0].number')
