@@ -14,7 +14,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo AUTOMATED_PR_TITLE="${{ github.event.pull_request.title }}" | sed "s/\[P\] //g" >> $GITHUB_ENV
+          echo AUTOMATED_PR_TITLE="${{ github.event.pull_request.title }}" | sed "s/\[P\] /\[S\]/g" >> $GITHUB_ENV
           echo ${{env.AUTOMATED_PR_TITLE}}
           pr_id=$(gh pr list --search "${{env.AUTOMATED_PR_TITLE}} in:title" --json number --jq '.[0].number')
           echo "staging_pr_id=$pr_id" >> $GITHUB_OUTPUT
