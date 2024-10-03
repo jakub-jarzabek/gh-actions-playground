@@ -103,10 +103,12 @@ jobs:
             -d "{\"labels\": $LABELS}"
 
       - name: Update existing PR labels
-        if: steps.check_pr.outputs.PR_found == 'true'
+        if: steps.check_pr.outputs.pr_found == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "PR found: " 
+          echo ${{steps.check_pr.outputs.pr_found}}
           # Find the existing PR number
           AUTOMATED_PR_TITLE="${{ github.event.pull_request.title }}" | sed "s/\[P\] /\[S\]/g"
           PR_NUMBER=$(gh pr list --search "${{env.AUTOMATED_PR_TITLE}} in:title" --json number --jq '.[0].number')
