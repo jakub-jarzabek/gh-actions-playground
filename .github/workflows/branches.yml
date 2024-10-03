@@ -56,19 +56,20 @@ jobs:
       - name: Check for existing pull request
         id: check_pr
         run: |
-          AUTOMATED_PR_TITLE="${{ github.event.pull_request.title }}" | sed "s/\[P\] /\[S\]/g"
-          echo AUTOMATED_PR_TITLE=$AUTOMATED_PR_TITLE 
+          AUTOMATED_PR_TITLE="${{ github.event.pull_request.title }}" | sed "s/\[P\] /\[S\] /g"
+          echo "asdasda"
+          echo $AUTOMATED_PR_TITLE 
           pr_id=$(gh pr list --search "$AUTOMATED_PR_TITLE in:title" --json number --jq '.[0].number')
+          echo "PR ID XOXOXO"
+          echo $pr_id
           if [ -n "$pr_id" ]; then
             echo "pr_found=true" >> $GITHUB_OUTPUT
           else
             echo "pr_found=false" >> $GITHUB_OUTPUT
           fi
 
-          echo $GITHUB_OUTPUT.pr_found
-
       - name: Create pull request
-        if: steps.check_pr.outputs.pr_found == 'false'
+        if: ${{steps.check_pr.outputs.pr_found == 'false'}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -104,7 +105,7 @@ jobs:
             -d "{\"labels\": $LABELS}"
 
       - name: Update existing PR labels
-        if: steps.check_pr.outputs.pr_found == 'true'
+        if: ${{steps.check_pr.outputs.pr_found == 'true'}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
