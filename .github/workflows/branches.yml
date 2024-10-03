@@ -1,3 +1,4 @@
+name: Automate Staging PR
 on:
   pull_request:
     branches:
@@ -21,10 +22,11 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER \
             -d "{\"title\":\"$NEW_TITLE\"}"
+            echo $NEW_TITLE >> $GITHUB_ENV
 
   create-staging-pr:
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.event.pull_request.title, '<skip>') }}
+    if: ${{ !contains(env.NEW_TITLE, '<skip>') }}
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       PR_PREFIX: "[S]"
