@@ -1,0 +1,49 @@
+name: Auto-merge Staging
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - "production"
+
+jobs:
+  auto-merge-staging:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Find and merge staging PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Extract the branch name from the merged PR
+          SOURCE_BRANCH="$staging-{{ github.event.pull_request.head.ref }}"
+
+          # Find corresponding PR to staging
+          PR_NUMBER=$(gh pr list \
+            --base staging \
+            --head "$SOURCE_BRANCH" \
+            --json number \
+            --jq '.[0].number')
+
+          if [ -n "$PR_NUMBER" ]; then
+            echo "Found corresponding PR #$PR_NUMBER to staging"
+            
+                               MERGEABLE=$(gh pr view $PR_NUMBER --json mergeable,labels --jq '.mergeable and ([.labels[].name] | index("merge-conflicts") | not)')
+            
+            if [ "$MERGEABLE" = "true" ]; then
+              echo "PR is mergeable, proceeding with merge"
+              gh pr merge $PR_NUMBER --merge --delete-branch
+            else
+              echo "PR has conflicts and cannot be automatically merged"
+              exit 1
+            fi
+          else
+            echo "No corresponding PR to staging found"
+            exit 1
+          fi
