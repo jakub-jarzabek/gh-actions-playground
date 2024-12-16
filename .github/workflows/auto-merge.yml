@@ -22,7 +22,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Extract the branch name from the merged PR
-          SOURCE_BRANCH="$staging-{{ github.event.pull_request.head.ref }}"
+          SOURCE_BRANCH="staging-${{ github.event.pull_request.head.ref }}"
+          echo "Source branch: $SOURCE_BRANCH"
 
           # Find corresponding PR to staging
           PR_NUMBER=$(gh pr list \
